@@ -1,0 +1,51 @@
+{
+  "name": "uxai-ssistant",
+  "version": "1.0.0",
+  "description": "My webpack project",
+  "main": "dist/index.js",
+  "scripts": {
+    "test": "echo \"No tests specified\"",
+    "build": "webpack --mode=production --node-env=production",
+    "build:dev": "webpack --mode=development",
+    "build:prod": "webpack --mode=production --node-env=production",
+    "watch": "webpack --watch",
+    "serve": "webpack serve"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/brianWreaves/UXAI-Assistant.git"
+  },
+  "keywords": [
+    "ux",
+    "ui",
+    "ai",
+    "Ai-Assistant"
+  ],
+  "author": "lablab-ai uxai-team",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/brianWreaves/UXAI-Assistant/issues"
+  },
+  "homepage": "https://github.com/brianWreaves/UXAI-Assistant#readme",
+  "devDependencies": {
+    "@types/react": "^18.2.7",
+    "@types/react-dom": "^18.2.4",
+    "@webpack-cli/generators": "^3.0.4",
+    "css-loader": "^6.7.3",
+    "html-webpack-plugin": "^5.5.1",
+    "prettier": "^2.8.8",
+    "sass": "^1.62.1",
+    "sass-loader": "^13.2.2",
+    "style-loader": "^3.3.2",
+    "ts-loader": "^9.4.2",
+    "typescript": "^5.0.4",
+    "webpack": "^5.84.1",
+    "webpack-cli": "^5.1.1",
+    "webpack-dev-server": "^4.15.0",
+    "workbox-webpack-plugin": "^6.5.4"
+  },
+  "dependencies": {
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0"
+  }
+}
