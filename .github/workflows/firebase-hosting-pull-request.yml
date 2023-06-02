@@ -25,3 +25,4 @@ jobs:
           repoToken: '${{ secrets.GITHUB_TOKEN }}'
           firebaseServiceAccount: '${{ secrets.FIREBASE_SERVICE_ACCOUNT_UXAI_ASSISTANT }}'
           projectId: uxai-assistant
+          channelId: '${{ github.run_number }}'
