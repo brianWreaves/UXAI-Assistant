@@ -2,7 +2,7 @@
   "name": "uxai-backend",
   "version": "1.0.0",
   "description": "Simple API gateway",
-  "main": "dist/index.js",
+  "main": "index.js",
   "scripts": {
     "test": "echo \"No test specified\"",
     "start": "nodemon --exec ts-node src/index.ts",

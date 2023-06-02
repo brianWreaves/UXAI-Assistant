@@ -6,6 +6,7 @@ Fabric script to deploy the backend application to the vm.
 
 from fabric.api import env, run, local, cd, put, sudo
 from os.path import isdir, exists
+import os
 
 
 env.hosts = ['<username>@<ip-address>']
@@ -18,6 +19,7 @@ def do_build():
         if isdir('/tmp/backend') is False:
             local("mkdir /tmp/backend")
         file_name = "/tmp/backend/build.tar.gz"
+        local("cp backend-service/package.json backend-service/dist/")
         local("tar -czvf {} backend-service/dist".format(file_name))
         return file_name
     except Exception as e:
@@ -34,7 +36,7 @@ def do_deploy(build_file):
         return False
     try:
         remote_tmp_dir = "/tmp/backend"
-        remote_dist_dir = "/home/<username>/backend-service"
+        remote_dist_dir = "/home/ubuntu/backend-service"
         run("mkdir -p {}".format(remote_tmp_dir))
         run("mkdir -p {}".format(remote_dist_dir))
         run("rm -rf {}/*".format(remote_tmp_dir))
@@ -42,7 +44,9 @@ def do_deploy(build_file):
         put(build_file, remote_tmp_dir)
         with cd(remote_tmp_dir):
             run("tar -xzvf build.tar.gz")
-            run("mv dist/* {}".format(remote_dist_dir))
+            run("mv backend-service/dist/* {}".format(remote_dist_dir))
+        with cd(remote_dist_dir):
+            run("npm install")
         run("rm -rf {}".format(remote_tmp_dir))
         return True
     except Exception as e:
@@ -64,16 +68,17 @@ def do_service():
             After=network.target
 
             [Service]
-            Environment=NODE_PORT=<port>
+            Environment=PORT=5000
+            Environment=ANTHROPIC_API_KEY={}
             Type=simple
-            User=<username>
-            WorkingDirectory=/home/<username>/backend-service
-            ExecStart=/usr/bin/node /home/<username>/backend-service/index.js
+            User=ubuntu
+            WorkingDirectory=/home/ubuntu/backend-service
+            ExecStart=/usr/bin/node /home/ubuntu/backend-service/index.js
             Restart=on-failure
 
             [Install]
             WantedBy=multi-user.target
-            """
+            """.format(os.environ.get("ANTHROPIC_API_KEY"))
             sudo("echo '{}' > {}".format(service, service_file))
             sudo("systemctl daemon-reload")
             sudo("systemctl enable {}".format(service_name))
