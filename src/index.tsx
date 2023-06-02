@@ -1,6 +1,8 @@
 import React from "react";
-import ReactDOM from "react-dom";
+import { createRoot } from "react-dom/client";
 import { ThemeProvider, ColorModeProvider, Box } from "@chakra-ui/react";
+
+import { Chat } from "./components";
 
 import chakraTheme from "@chakra-ui/theme";
 
@@ -23,13 +25,14 @@ const theme = {
   },
 };
 
-ReactDOM.render(
+const rootElement = document.getElementById("root") as HTMLElement;
+
+createRoot(rootElement).render(
   <React.StrictMode>
     <ThemeProvider theme={theme}>
       <ColorModeProvider>
-        <Box>UXAI Assistant</Box>
+        <Chat />
       </ColorModeProvider>
     </ThemeProvider>
-  </React.StrictMode>,
-  document.getElementById("root")
+  </React.StrictMode>
 );

@@ -3,6 +3,7 @@
 const path = require("path");
 const HtmlWebpackPlugin = require("html-webpack-plugin");
 const WorkboxWebpackPlugin = require("workbox-webpack-plugin");
+const webpack = require("webpack");
 
 const isProduction = process.env.NODE_ENV == "production";
 
@@ -16,10 +17,15 @@ const config = {
   devServer: {
     open: true,
     host: "localhost",
+    headers: {
+      "Access-Control-Allow-Origin": "*",
+    "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, PATCH, OPTIONS",
+    "Access-Control-Allow-Headers": "X-Requested-With, content-type, Authorization"
+    }
   },
   plugins: [
     new HtmlWebpackPlugin({
-      template: "index.html",
+      template: "public/index.html",
       favicon: "./src/assets/favicon.png",
     }),
 
@@ -61,8 +67,10 @@ module.exports = () => {
     config.mode = "production";
 
     config.plugins.push(new WorkboxWebpackPlugin.GenerateSW());
+    config.plugins.push(new webpack.EnvironmentPlugin({ ...process.env }))
   } else {
     config.mode = "development";
+    config.plugins.push(new webpack.EnvironmentPlugin({ ...process.env }))
   }
   return config;
 };

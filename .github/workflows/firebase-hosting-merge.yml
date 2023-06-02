@@ -9,16 +9,18 @@ name: Deploy to Firebase Hosting on merge
     paths-ignore:
       - 'README.md'
       - 'LICENSE'
+      - "backend-service/**"
 
 jobs:
   build_and_deploy:
     runs-on: ubuntu-latest
+    environment: prod
     steps:
       - uses: actions/checkout@v3
       - run: npm ci && npm run build
         env:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
-          
+
       - uses: FirebaseExtended/action-hosting-deploy@v0
         with:
           repoToken: '${{ secrets.GITHUB_TOKEN }}'

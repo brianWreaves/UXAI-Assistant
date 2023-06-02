@@ -26,7 +26,11 @@
     "baseUrl": "./src"
   },
   "include": [
-    "src"
+    "src",
+    "src/index.tsx"
+  ], "exclude": [
+    "node_modules",
+    "dist",
+    "backend-service"
   ]
 }
-
