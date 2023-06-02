@@ -20,6 +20,7 @@ jobs:
       - run: npm ci && npm run build
         env:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          ANTHROPIC_PROXY_ENDPOINT: ${{ secrets.ANTHROPIC_PROXY_ENDPOINT }}
 
       - uses: FirebaseExtended/action-hosting-deploy@v0
         with:
