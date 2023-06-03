@@ -36,7 +36,7 @@ def do_deploy(build_file):
         return False
     try:
         remote_tmp_dir = "/tmp/backend"
-        remote_dist_dir = "/home/ubuntu/backend-service"
+        remote_dist_dir = "/home/ubuntu/backend-service".format(env.username)
         run("mkdir -p {}".format(remote_tmp_dir))
         run("mkdir -p {}".format(remote_dist_dir))
         run("rm -rf {}/*".format(remote_tmp_dir))

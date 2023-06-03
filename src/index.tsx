@@ -6,6 +6,10 @@ import { Chat } from "./components";
 
 import chakraTheme from "@chakra-ui/theme";
 
+import "./index.css";
+import { Navbar } from "components/navbar";
+import { App } from "navigation";
+
 const theme = {
   ...chakraTheme,
   colors: {
@@ -31,7 +35,8 @@ createRoot(rootElement).render(
   <React.StrictMode>
     <ThemeProvider theme={theme}>
       <ColorModeProvider>
-        <Chat />
+        <Navbar />
+        <App/>
       </ColorModeProvider>
     </ThemeProvider>
   </React.StrictMode>
