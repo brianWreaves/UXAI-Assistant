@@ -17,8 +17,19 @@ const client = new Client(apiKey);
 export const complete = async (req: Request, res: Response) => {
   const options = req.body as any;
   client.complete(options).then((response) => {
-    res.status(200).send(response);
+    const {completion} = response;
+    const __html = insertHtmlTags(completion);
+    res.status(200).send({...response, completion: __html});
   }).catch((error) => {
     res.json(error);
   });
+}
+
+/**
+ * Replace newlines with HTML tags
+ * @param str string
+ * @returns string
+ */
+export const insertHtmlTags = (str: string) => {
+  return str.replace(/(?:\r\n|\r|\n)/g, '<br>');
 }

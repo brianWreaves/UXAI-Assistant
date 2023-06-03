@@ -8,15 +8,17 @@ from fabric.api import env, run, local, cd, put, sudo
 from os.path import isdir, exists
 import os
 
+env.username = os.environ.get("VM_USERNAME")
+env.host_address = os.environ.get("VM_HOST_ADDRESS")
+env.hosts = ["<username>@<host_address>"]
 
-env.hosts = ['<username>@<ip-address>']
 
 def do_build():
     """
     Build the backend application.
     """
     try:
-        if isdir('/tmp/backend') is False:
+        if isdir("/tmp/backend") is False:
             local("mkdir /tmp/backend")
         file_name = "/tmp/backend/build.tar.gz"
         local("cp backend-service/package.json backend-service/dist/")
@@ -26,7 +28,8 @@ def do_build():
         print("Error while building the backend application.")
         print(e)
         return None
-    
+
+
 def do_deploy(build_file):
     """
     Distribute the backend service to the vm.
@@ -36,7 +39,7 @@ def do_deploy(build_file):
         return False
     try:
         remote_tmp_dir = "/tmp/backend"
-        remote_dist_dir = "/home/ubuntu/backend-service".format(env.username)
+        remote_dist_dir = "/home/<username>/backend-service"
         run("mkdir -p {}".format(remote_tmp_dir))
         run("mkdir -p {}".format(remote_dist_dir))
         run("rm -rf {}/*".format(remote_tmp_dir))
@@ -53,7 +56,8 @@ def do_deploy(build_file):
         print("Error while deploying the backend application.")
         print(e)
         return False
-    
+
+
 def do_service():
     """
     Create a service for the backend application if it does not exist.
@@ -71,20 +75,23 @@ def do_service():
             Environment=PORT=5000
             Environment=ANTHROPIC_API_KEY={}
             Type=simple
-            User=ubuntu
-            WorkingDirectory=/home/ubuntu/backend-service
-            ExecStart=/usr/bin/node /home/ubuntu/backend-service/index.js
+            User=<username>
+            WorkingDirectory=/home/<username>/backend-service
+            ExecStart=/usr/bin/node /home/<username>/backend-service/index.js
             Restart=on-failure
 
             [Install]
             WantedBy=multi-user.target
-            """.format(os.environ.get("ANTHROPIC_API_KEY"))
+            """.format(
+                os.environ.get("ANTHROPIC_API_KEY")
+            )
             sudo("echo '{}' > {}".format(service, service_file))
             sudo("systemctl daemon-reload")
             sudo("systemctl enable {}".format(service_name))
             sudo("systemctl start {}".format(service_name))
             sudo("systemctl status {}".format(service_name))
         else:
+            sudo("systemctl daemon-reload")
             sudo("systemctl restart {}".format(service_name))
             sudo("systemctl status {}".format(service_name))
         return True
@@ -92,6 +99,7 @@ def do_service():
         print("Error while creating the service for the backend application.")
         print(e)
         return False
+
 
 def deploy():
     """
@@ -103,4 +111,3 @@ def deploy():
             do_service()
     else:
         print("Deployment failed.")
-

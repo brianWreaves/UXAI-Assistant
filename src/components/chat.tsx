@@ -48,20 +48,25 @@ export const Chat = () => {
   ]);
 
   const [currentText, setCurrentText] = useState<string>("");
+  const [loadingText, setLoadingText] = useState<string>("Loading ...");
 
   const [history, updateHistory] = useState<string>("");
 
   const inputRef = React.useRef<HTMLTextAreaElement>(null);
   const containerRef = React.useRef<HTMLDivElement>(null);
-
-  const [inputHeight, setInputHeight] = useState(0);
+  const [autoScroll, setAutoScroll] = useState(true);
+  const [loading, setLoading] = useState(false);
 
   const handleInput = (e: any) => {
     setInputValue(e.target.value);
   };
 
+  /**
+   * Local handler for the submit button
+   */
   const handleSubmit = useCallback(async () => {
     try {
+      setLoading(true);
       const text = inputValue;
       if (text.trim() === '') return;
 
@@ -78,22 +83,22 @@ export const Chat = () => {
           console.log(err)
           return "Sorry, I don't understand"
         });
-      // setMessages([...data, { type: 'a i', text: airesp }])
-      const __html = insertHtmlTags(airesp)
-      setCurrentText(__html)
+      setLoading(false);
+      setCurrentText(airesp)
     } catch (e) {
+      setLoading(false);
       console.log(e);
     }
   }, [inputValue, messages]);
 
-  const write = textWriter(currentText);
+  const write = useWriter(currentText);
 
   useEffect(() => {
     const input = inputRef.current;
     if (!input) return;
 
     const handler = (e: any) => {
-      if (e.key === "Enter") {
+      if (e.key === "Enter" && !e.shiftKey) {
         e.preventDefault();
         console.log("Enter key pressed")
         handleSubmit()
@@ -107,18 +112,52 @@ export const Chat = () => {
     }
   }, [handleSubmit])
 
+  /**
+   * Auto scroll to bottom when new message is added
+   */
+  useEffect(() => {
+    const container = containerRef.current;
+    if (!container) return;
+    if (autoScroll) container.scrollTop = container.scrollHeight;
+  }, [write, autoScroll, messages])
+
+  /**
+   * Disable auto scroll when user scrolls up
+   * and enable it when user scrolls to bottom
+   */
   useEffect(() => {
     const container = containerRef.current;
     if (!container) return;
 
-    container.scrollTop = container.scrollHeight;
-  }, [write])
-
-  useEffect(() => {
-    if (inputRef.current && inputValue.length > 0) {
-      setInputHeight(inputRef.current.scrollHeight);
+    const handler = () => {
+      setAutoScroll(container.scrollTop + container.clientHeight === container.scrollHeight)
     }
-  }, [inputValue])
+
+    container.addEventListener("scroll", handler)
+
+    return () => {
+      container.removeEventListener("scroll", handler)
+    }
+  }, [])
+
+  /**
+   * Update loading text
+   */
+  useEffect(() => {
+    if (loading) {
+      const interval = setInterval(() => {
+        setLoadingText((text) => {
+          if (text === "Loading ...") return "Loading"
+          else if (text === "Loading") return "Loading ."
+          else if (text === "Loading .") return "Loading .."
+          else return "Loading ..."
+        })
+      }, 500)
+
+      return () => clearInterval(interval)
+    }
+  }, [loading])
+
 
 
   return (
@@ -131,9 +170,10 @@ export const Chat = () => {
             + New Chat
           </Button>
         </Box>
-        <Box maxWidth="1000px" margin="auto" pos="relative" right="0" width="100%" height="100%" className='chat-window' >
+        <Box maxWidth="1000px" margin="auto" pos="relative"  width="100%" height="100%" className='chat-window'
+          right={0} left={0} top={0} bottom={0}
+        >
           <Box
-            // flexDir="column"
             maxW="95%"
             margin="auto"
             ref={containerRef}
@@ -147,6 +187,7 @@ export const Chat = () => {
                 <MessageDisplay key={index} {...message} />
               ))}
               {currentText !== "" && <MessageDisplay type="a i" text={write} />}
+              {loading && <MessageDisplay type="a i" text={loadingText} />}
             </Flex>
 
           </Box>
@@ -155,7 +196,6 @@ export const Chat = () => {
               boxShadow={"0px 0px 10px 0px rgba(0,0,0,0.75)"}
               borderRadius={"20px"}
             >
-              {/* <Input type="text" placeholder="Enter your message" value={inputValue} onChange={handleInput} /> */}
               <Textarea placeholder="Enter your message" value={inputValue} onChange={handleInput} resize={"none"}
                 ref={inputRef}
                 minHeight={"50px"}
@@ -181,40 +221,31 @@ export const Chat = () => {
   );
 };
 
-export const textWriter = (text: string) => {
+export const useWriter = (text: string) => {
   const [value, setValue] = useState<string>("");
   const [index, setIndex] = useState<number>(0);
-  const [isDeleting, setIsDeleting] = useState<boolean>(false);
-  const [speed, setSpeed] = useState<number>(100);
+  const [done, setDone] = useState<boolean>(false);
 
   useEffect(() => {
     const timeout = setTimeout(() => {
-      // if (isDeleting) {
-      //   setValue(text.substring(0, index - 1));
-      //   setIndex((prev) => prev - 1);
-      // } else {
-      setValue(text.substring(0, index + 1));
-      setIndex((prev) => prev + 1);
-      // }
-    }, speed);
+      if (!done && index < text.length) {
+        setValue(text.substring(0, index + 1));
+        setIndex((prev) => prev + 1);
+      }
+
+    }, 20);
 
     return () => clearTimeout(timeout);
-  }, [index, isDeleting, speed, text]);
+  }, [index, done, text]);
 
-  // useEffect(() => {
-  //   if (index === text.length + 1 && !isDeleting) {
-  //     setSpeed(2000);
-  //     setIsDeleting(true);
-  //   } else if (index === 0 && isDeleting) {
-  //     setSpeed(100);
-  //     setIsDeleting(false);
-  //   }
-  // }, [index, isDeleting, text]);
+  useEffect(() => {
+    if (value === text && !done) {
+      setIndex(0);
+      setDone(true);
+    } else {
+      setDone(false);
+    }
+  }, [value, text, done]);
 
   return value;
-}
-
-
-export const insertHtmlTags = (str: string) => {
-  return str.replace(/(?:\r\n|\r|\n)/g, '<br>');
 }
