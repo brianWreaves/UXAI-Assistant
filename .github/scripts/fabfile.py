@@ -49,6 +49,7 @@ def do_deploy(build_file):
             run("tar -xzvf build.tar.gz")
             run("mv backend-service/dist/* {}".format(remote_dist_dir))
         with cd(remote_dist_dir):
+            run("export NODE_ENV=production")
             run("npm install")
         run("rm -rf {}".format(remote_tmp_dir))
         return True
