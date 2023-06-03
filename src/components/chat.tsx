@@ -152,7 +152,7 @@ export const Chat = () => {
           else if (text === "Loading .") return "Loading .."
           else return "Loading ..."
         })
-      }, 500)
+      }, 250)
 
       return () => clearInterval(interval)
     }
@@ -163,12 +163,17 @@ export const Chat = () => {
   return (
     <React.Fragment>
       <Box className='chat-container' height="100%" width="100%" maxW="1440px" pos="absolute" >
-        <Box className='side-menu' borderRight=".5px solid" minW="250px">
+        <Box className='side-menu' borderRight=".5px solid" minW="250px" pl="1rem" pr="1rem">
           <Button variant="ghost" colorScheme="blue" size="lg" margin=""
             width="90%" cursor={"pointer"}
             onClick={() => { }}>
             + New Chat
           </Button>
+          <Box width={"100%"} height={"80%"} overflow={"auto"} mt=".5rem" >
+            <ChatRoom title='Welcome'></ChatRoom>
+            <ChatRoom title='What is AGI'></ChatRoom>
+            <ChatRoom title='What is fission'></ChatRoom>
+          </Box>
         </Box>
         <Box maxWidth="1000px" margin="auto" pos="relative"  width="100%" height="100%" className='chat-window'
           right={0} left={0} top={0} bottom={0}
@@ -221,6 +226,11 @@ export const Chat = () => {
   );
 };
 
+/**
+ * Local hook to give the illusion of typing
+ * @param text Text to be typed
+ * @returns typed text
+ */
 export const useWriter = (text: string) => {
   const [value, setValue] = useState<string>("");
   const [index, setIndex] = useState<number>(0);
@@ -248,4 +258,19 @@ export const useWriter = (text: string) => {
   }, [value, text, done]);
 
   return value;
+}
+
+
+export const ChatRoom = ({title}:{title: string}) => {
+
+  return (
+    <Text
+     cursor={"pointer"}
+     p=".5rem 1rem"
+     bg="gray.100"
+     mb=".25rem"
+     noOfLines={1}
+     fontWeight="500"
+    >{title}</Text>
+  )
 }
